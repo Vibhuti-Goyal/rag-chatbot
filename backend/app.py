@@ -1,5 +1,7 @@
 # app.py
-
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
 from werkzeug.utils import secure_filename
 from utils.file_reader import read_file_text
@@ -96,136 +98,57 @@ def process_single_url(url):
         print(f"❌ Error processing URL {url}: {e}")
         return None, f"Error processing URL: {str(e)}"
 
-@app.route("/", methods=["GET", "POST"])
-def index():
+
+
+@app.route("/upload_url", methods=["POST"])
+def upload_url():
     global documents_collection
 
-    if request.method == "POST":
-        try:
-            processing_results = []
-            new_documents = []
-            
-            # Check if it's multiple URLs submission
-            if 'file_urls' in request.form and request.form.get("file_urls"):
-                # Handle multiple URLs submission
-                file_urls_text = request.form.get("file_urls")
-                
-                if not file_urls_text or not file_urls_text.strip():
-                    return render_template("index.html", error="❌ Please provide valid file URLs.")
-                
-                # Split URLs by newlines and filter empty lines
-                urls = [url.strip() for url in file_urls_text.split('\n') if url.strip()]
-                
-                if not urls:
-                    return render_template("index.html", error="❌ No valid URLs provided.")
-                
-                print(f"🔄 Processing {len(urls)} URLs...")
-                
-                # Process each URL
-                for i, url in enumerate(urls):
-                    doc_obj, status_msg = process_single_url(url)
-                    
-                    if doc_obj:
-                        new_documents.append(doc_obj)
-                        processing_results.append(f"✅ URL {i+1}: {status_msg}")
-                    else:
-                        processing_results.append(f"❌ URL {i+1}: {status_msg}")
-                
-            elif 'file_url' in request.form and request.form.get("file_url"):
-                # Handle single URL submission (backward compatibility)
-                file_url = request.form.get("file_url")
-                doc_obj, status_msg = process_single_url(file_url)
-                
-                if doc_obj:
-                    new_documents.append(doc_obj)
-                    processing_results.append(f"✅ {status_msg}")
-                else:
-                    processing_results.append(f"❌ {status_msg}")
-                
-            elif 'file' in request.files:
-                # Handle file upload (existing functionality)
-                file = request.files['file']
-                
-                if file.filename == '':
-                    return render_template("index.html", error="❌ No file selected.")
-                
-                if file and allowed_file(file.filename):
-                    filename = secure_filename(file.filename)
-                    
-                    # Save uploaded file temporarily
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(filename)[1]) as tmp_file:
-                        file.save(tmp_file.name)
-                        temp_path = tmp_file.name
-                    
-                    print(f"🔄 Processing uploaded file: {filename}")
-                    
-                    # Read the uploaded file
-                    content, filename, file_type = read_file_text(temp_path)
-                    
-                    # Clean up temporary file
-                    try:
-                        os.unlink(temp_path)
-                    except:
-                        pass
-                    
-                    if content is None:
-                        return render_template("index.html", error="❌ Could not read the uploaded file.")
-                    
-                    # Process the uploaded file
-                    if isinstance(content, pd.DataFrame) or file_type == 'structured':
-                        doc_obj = create_document_obj(content, filename, file_type)
-                        new_documents.append(doc_obj)
-                        processing_results.append(f"✅ Successfully loaded table with {content.shape[0]} rows and {content.shape[1]} columns")
-                    else:
-                        if not content or not content.strip():
-                            return render_template("index.html", error="❌ The uploaded file appears to be empty.")
-                        
-                        try:
-                            chunks = embed_text_chunks(content, filename)
-                            doc_obj = create_document_obj(content, filename, file_type, chunks)
-                            new_documents.append(doc_obj)
-                            
-                            if chunks:
-                                save_to_vector_store(chunks, filename)
-                                processing_results.append(f"✅ Successfully loaded text document with {len(chunks)} chunks")
-                            else:
-                                processing_results.append("✅ Document loaded but no chunks created")
-                                
-                        except Exception as e:
-                            return render_template("index.html", error=f"❌ Error processing uploaded file: {str(e)}")
-                else:
-                    return render_template("index.html", error="❌ File type not supported.")
-            else:
-                return render_template("index.html", error="❌ Please provide URLs or upload a file.")
-            
-            # Add new documents to collection
-            if new_documents:
-                documents_collection['documents'].extend(new_documents)
-                
-                # Update collection statistics
-                documents_collection['total_chunks'] = sum(len(doc['chunks']) for doc in documents_collection['documents'] if doc['type'] == 'text')
-                documents_collection['total_tables'] = sum(1 for doc in documents_collection['documents'] if doc['type'] == 'table')
-                
-                # Prepare success message
-                success_message = f"📁 Loaded {len(new_documents)} document(s). Total: {len(documents_collection['documents'])} documents"
-                
-                # Add detailed results
-                results_detail = "\n".join(processing_results)
-                
-                return render_template("index.html", 
-                                     success=True, 
-                                     message=success_message,
-                                     processing_results=processing_results,
-                                     documents_collection=documents_collection)
-            else:
-                error_message = "❌ No documents could be loaded.\n" + "\n".join(processing_results)
-                return render_template("index.html", error=error_message)
-        
-        except Exception as e:
-            print(f"❌ Unexpected error: {e}")
-            return render_template("index.html", error=f"❌ Unexpected error: {str(e)}")
+    try:
+        data = request.get_json()
+        urls = data.get("file_urls", [])
 
-    return render_template("index.html", documents_collection=documents_collection)
+        if not urls or not isinstance(urls, list):
+            return jsonify({"success": False, "error": "Please provide a list of URLs."}), 400
+
+        processing_results = []
+        new_documents = []
+
+        for i, url in enumerate(urls):
+            doc_obj, status_msg = process_single_url(url)
+
+            if doc_obj:
+                new_documents.append(doc_obj)
+                processing_results.append(f"✅ URL {i+1}: {status_msg}")
+            else:
+                processing_results.append(f"❌ URL {i+1}: {status_msg}")
+
+        if new_documents:
+            documents_collection['documents'].extend(new_documents)
+            documents_collection['total_chunks'] = sum(len(doc['chunks']) for doc in documents_collection['documents'] if doc['type'] == 'text')
+            documents_collection['total_tables'] = sum(1 for doc in documents_collection['documents'] if doc['type'] == 'table')
+
+            return jsonify({
+                "success": True,
+                "message": f"Loaded {len(new_documents)} new document(s).",
+                "processing_results": processing_results,
+                "documents": documents_collection['documents']
+            })
+
+        else:
+            return jsonify({
+                "success": False,
+                "error": "No documents could be loaded.",
+                "processing_results": processing_results
+            }), 400
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Unexpected error: {str(e)}"
+        }), 500
+
+
 
 @app.route("/ask", methods=["POST"])
 def ask():

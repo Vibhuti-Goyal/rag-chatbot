@@ -1,0 +1,428 @@
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  min-height: 100vh;
+  color: #e2e8f0;
+}
+
+.app-view {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Button Styles */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5);
+}
+
+.btn-secondary {
+  background: rgba(30, 41, 59, 0.8);
+  color: #e2e8f0;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+  background: rgba(30, 41, 59, 0.9);
+  transform: translateY(-1px);
+  border-color: rgba(148, 163, 184, 0.5);
+}
+
+/* Login View */
+#login-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.login-container {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 60px 50px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  max-width: 450px;
+  width: 100%;
+}
+
+.login-container h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtext {
+  color: #94a3b8;
+  font-size: 16px;
+  margin-bottom: 40px;
+  line-height: 1.5;
+}
+
+.login-btn {
+  width: 100%;
+  margin: 10px 0;
+  padding: 16px 24px;
+  font-size: 16px;
+}
+
+/* User View */
+#user-view {
+  height: 100vh;
+  display: flex;
+}
+
+.co-pilot-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+/* History Sidebar */
+.history-sidebar {
+  width: 280px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  overflow-y: auto;
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.new-chat-btn {
+  width: 100%;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  border: none;
+  font-size: 16px;
+}
+
+.history-list {
+  list-style: none;
+}
+
+.history-list li {
+  margin-bottom: 8px;
+}
+
+.history-list a {
+  display: block;
+  padding: 12px 16px;
+  color: #cbd5e1;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.history-list a:hover {
+  background: rgba(30, 41, 59, 0.8);
+  color: #f1f5f9;
+}
+
+.history-list a.active {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+}
+
+/* Main Chat View */
+.main-chat-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(20px);
+}
+
+.co-pilot-header {
+  padding: 20px 30px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.co-pilot-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.co-pilot-header button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.co-pilot-header button:hover {
+  background: rgba(148, 163, 184, 0.1);
+  color: #f1f5f9;
+}
+
+/* Conversation Area */
+.conversation-area {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chat-message {
+  max-width: 80%;
+  padding: 16px 20px;
+  border-radius: 18px;
+  line-height: 1.5;
+  font-size: 15px;
+  word-wrap: break-word;
+}
+
+.user-message {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  border-bottom-right-radius: 6px;
+}
+
+.bot-message {
+  align-self: flex-start;
+  background: rgba(51, 65, 85, 0.8);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-bottom-left-radius: 6px;
+}
+
+/* Input Area */
+.input-area {
+  padding: 20px 30px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  display: flex;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.input-area input {
+  flex: 1;
+  padding: 16px 20px;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
+  background: rgba(30, 41, 59, 0.8);
+  color: #f1f5f9;
+}
+
+.input-area input::placeholder {
+  color: #94a3b8;
+}
+
+.input-area input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.input-area button {
+  padding: 16px 20px;
+  border-radius: 12px;
+  font-size: 18px;
+}
+
+/* Admin View */
+#admin-view {
+  height: 100vh;
+  display: flex;
+}
+
+.admin-sidebar {
+  width: 280px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.admin-sidebar h1 {
+  color: #f1f5f9;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.admin-sidebar nav ul {
+  list-style: none;
+  flex: 1;
+}
+
+.admin-sidebar nav li {
+  margin-bottom: 8px;
+}
+
+.admin-sidebar nav a {
+  display: block;
+  padding: 14px 18px;
+  color: #cbd5e1;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.admin-sidebar nav a:hover {
+  background: rgba(30, 41, 59, 0.8);
+  color: #f1f5f9;
+  transform: translateX(4px);
+}
+
+.admin-sidebar nav a.active {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+}
+
+.sidebar-footer {
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  padding-top: 20px;
+  margin-top: 20px;
+}
+
+.sidebar-footer p {
+  color: #cbd5e1;
+  font-size: 14px;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.sidebar-footer a {
+  display: block;
+  padding: 10px 16px;
+  color: #cbd5e1;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.sidebar-footer a:hover {
+  background: rgba(30, 41, 59, 0.8);
+  color: #f1f5f9;
+}
+
+/* Admin Content */
+.admin-content {
+  flex: 1;
+  padding: 40px;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(20px);
+  overflow-y: auto;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 30px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .history-sidebar,
+  .admin-sidebar {
+    width: 240px;
+  }
+  
+  .login-container {
+    padding: 40px 30px;
+    margin: 20px;
+  }
+  
+  .login-container h1 {
+    font-size: 2rem;
+  }
+  
+  .conversation-area {
+    padding: 20px;
+  }
+  
+  .chat-message {
+    max-width: 90%;
+  }
+  
+  .admin-content {
+    padding: 20px;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .co-pilot-container,
+  #admin-view {
+    flex-direction: column;
+  }
+  
+  .history-sidebar,
+  .admin-sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+  }
+  
+  .main-chat-view,
+  .admin-content {
+    flex: 1;
+    min-height: calc(100vh - 200px);
+  }
+}
