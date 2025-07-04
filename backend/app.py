@@ -14,10 +14,12 @@ import os
 import pandas as pd
 import tempfile
 from urllib.parse import urlparse
+from flask_cors import CORS
 
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
 
@@ -100,7 +102,7 @@ def process_single_url(url):
 
 
 
-@app.route("/upload_url", methods=["POST"])
+@app.route("/upload_urls", methods=["POST"])
 def upload_url():
     global documents_collection
 
@@ -132,8 +134,16 @@ def upload_url():
                 "success": True,
                 "message": f"Loaded {len(new_documents)} new document(s).",
                 "processing_results": processing_results,
-                "documents": documents_collection['documents']
-            })
+                "documents": [
+                {
+                    "filename": doc.get("filename"),
+                    "type": doc.get("type"),
+                    "is_current": doc.get("is_current", False),
+                    "num_chunks": len(doc.get("chunks", []))
+                }
+                for doc in documents_collection['documents']
+            ]
+        })
 
         else:
             return jsonify({

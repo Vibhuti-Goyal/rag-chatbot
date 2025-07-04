@@ -1,98 +1,143 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+import styles from './ChatbotPage.module.scss';
 
 const ChatbotPage = ({ user, onLogout }) => {
   const [chatHistory, setChatHistory] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
   const [input, setInput] = useState('');
+  const [searchMode, setSearchMode] = useState('current'); // "current" or "all"
   const conversationRef = useRef();
 
   useEffect(() => {
-    const initialChats = [
-      { id: 1, title: 'API Authentication', messages: [
-        { type: 'user', text: 'How do I auth with the V2 API?' },
-        { type: 'bot', text: 'You need a JWT token...' },
-      ] },
-      { id: 2, title: 'Ticket INC-58291', messages: [
-        { type: 'user', text: 'Resolution for ticket INC-58291?' },
-        { type: 'bot', text: 'Restarted database service.' },
-      ] }
-    ];
+    const initialChats = [];
     setChatHistory(initialChats);
-    setActiveChatId(1);
+    setActiveChatId(null);
   }, []);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
-    const message = { type: 'user', text: input };
-    let updatedChats = [...chatHistory];
+
+    const userMessage = { type: 'user', text: input };
+    const updatedChats = [...chatHistory];
     let chat = updatedChats.find(c => c.id === activeChatId);
 
     if (!chat) {
       const newChat = {
         id: Date.now(),
         title: input.substring(0, 25) + '...',
-        messages: [message]
+        messages: [userMessage],
       };
       updatedChats.unshift(newChat);
       setChatHistory(updatedChats);
       setActiveChatId(newChat.id);
     } else {
-      chat.messages.push(message);
+      chat.messages.push(userMessage);
     }
 
     setInput('');
     setChatHistory(updatedChats);
 
-    setTimeout(() => {
-      const botResponse = { type: 'bot', text: 'This is a simulated response.' };
+    try {
+      const res = await axios.post('http://127.0.0.1:5000/ask', {
+        question: input,
+        search_mode: searchMode
+      });
+
+      const botMessage = {
+        type: 'bot',
+        text: res.data.answer || "🤖 I don't have an answer for that."
+      };
+
       const updatedChatsAfterBot = [...updatedChats];
-      const currentChat = updatedChatsAfterBot.find(c => c.id === activeChatId);
-      if (currentChat) currentChat.messages.push(botResponse);
+      const currentChat = updatedChatsAfterBot.find(c => c.id === (chat?.id || activeChatId));
+      if (currentChat) currentChat.messages.push(botMessage);
+
       setChatHistory(updatedChatsAfterBot);
-    }, 1000);
+    } catch (error) {
+      const errorMessage = {
+        type: 'bot',
+        text: `❌ Error: ${error.response?.data?.error || error.message}`
+      };
+
+      const updatedChatsAfterError = [...updatedChats];
+      const currentChat = updatedChatsAfterError.find(c => c.id === (chat?.id || activeChatId));
+      if (currentChat) currentChat.messages.push(errorMessage);
+
+      setChatHistory(updatedChatsAfterError);
+    }
   };
 
   const renderMessages = () => {
     const chat = chatHistory.find(c => c.id === activeChatId);
-    if (!chat) return <div className="chat-message bot-message">Ask me anything...</div>;
+    if (!chat) return <div className={`${styles.chatMessage} ${styles.botMessage}`}>Ask me anything...</div>;
     return chat.messages.map((msg, i) => (
-      <div key={i} className={`chat-message ${msg.type}-message`}>{msg.text}</div>
+      <div key={i} className={`${styles.chatMessage} ${styles[`${msg.type}Message`]}`}>{msg.text}</div>
     ));
   };
 
   return (
-    <div id="user-view">
-      <div className="co-pilot-container">
-        <aside className="history-sidebar">
-          <button className="btn btn-secondary new-chat-btn" onClick={() => setActiveChatId(null)}>＋ New Chat</button>
-          <ul className="history-list">
+    <div className={styles.userView}>
+      <div className={styles.coPilotContainer}>
+        <aside className={styles.historySidebar}>
+          <button 
+            className={`${styles.btn} ${styles.btnSecondary} ${styles.newChatBtn}`} 
+            onClick={() => setActiveChatId(null)}
+          >
+            ＋ New Chat
+          </button>
+          <ul className={styles.historyList}>
             {chatHistory.map(chat => (
               <li key={chat.id}>
                 <a
                   href="#"
-                  className={chat.id === activeChatId ? 'active' : ''}
-                  onClick={e => { e.preventDefault(); setActiveChatId(chat.id); }}>
+                  className={chat.id === activeChatId ? styles.active : ''}
+                  onClick={e => {
+                    e.preventDefault();
+                    setActiveChatId(chat.id);
+                  }}
+                >
                   {chat.title}
                 </a>
               </li>
             ))}
           </ul>
         </aside>
-        <div className="main-chat-view">
-          <header className="co-pilot-header">
+
+        <div className={styles.mainChatView}>
+          <header className={styles.coPilotHeader}>
             <h2>Co-Pilot</h2>
             <button title="Logout" onClick={onLogout}>🚪 Logout</button>
           </header>
-          <main className="conversation-area" ref={conversationRef}>{renderMessages()}</main>
-          <footer className="input-area">
+
+          <main className={styles.conversationArea} ref={conversationRef}>
+            {renderMessages()}
+          </main>
+
+          <footer className={styles.inputArea}>
+            <select
+              value={searchMode}
+              onChange={e => setSearchMode(e.target.value)}
+              className={styles.searchModeSelect}
+            >
+              <option value="current">Current</option>
+              <option value="all">All</option>
+            </select>
+
             <input
               type="text"
               placeholder="Ask anything..."
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyUp={e => e.key === 'Enter' && handleSend()}
+              className={styles.messageInput}
             />
-            <button className="btn btn-primary" onClick={handleSend}>➤</button>
+            <button 
+              className={`${styles.btn} ${styles.btnPrimary}`} 
+              onClick={handleSend}
+            >
+              ➤
+            </button>
           </footer>
         </div>
       </div>
