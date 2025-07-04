@@ -19,7 +19,8 @@ from flask_cors import CORS
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
+# CORS(app, supports_credentials=True)
 
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
@@ -187,13 +188,21 @@ def ask():
             # Search across all documents
             target_documents = documents_collection['documents']
             search_description = f"all {len(target_documents)} documents"
+        # elif search_mode == "current":
+        #     # Search only current document
+        #     if documents_collection['current_index'] < len(documents_collection['documents']):
+        #         target_documents = [documents_collection['documents'][documents_collection['current_index']]]
+        #         search_description = f"current document ({target_documents[0]['filename']})"
+        #     else:
+        #         return jsonify({"answer": "⚠️ No current document selected."})
         elif search_mode == "current":
-            # Search only current document
-            if documents_collection['current_index'] < len(documents_collection['documents']):
-                target_documents = [documents_collection['documents'][documents_collection['current_index']]]
+            current_index = documents_collection.get('current_index')
+            if isinstance(current_index, int) and 0 <= current_index < len(documents_collection['documents']):
+                target_documents = [documents_collection['documents'][current_index]]
                 search_description = f"current document ({target_documents[0]['filename']})"
             else:
                 return jsonify({"answer": "⚠️ No current document selected."})
+
         elif search_mode.isdigit():
             # Search specific document by index
             doc_index = int(search_mode)
@@ -362,6 +371,7 @@ def switch_document():
             return jsonify({"error": "No data provided"}), 400
         
         doc_index = data.get("index")
+        doc_index = int(doc_index) if isinstance(doc_index, str) and doc_index.isdigit() else None
         if doc_index is None:
             return jsonify({"error": "Document index not provided"}), 400
         
