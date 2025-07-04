@@ -226,9 +226,7 @@ def generate_smart_prompt(question, context, question_analysis):
     Generate appropriate prompt based on question analysis
     """
     if question_analysis["requires_comprehensive"]:
-        prompt = f"""You are analyzing a document to provide a comprehensive answer. The user wants complete information about their query.
-
-Please provide a thorough answer that covers ALL relevant information found in the context. Be systematic and organized in your response.
+        prompt = f"""You are analyzing a document to provide a comprehensive answer. You must answer **only using the context** provided below. Do NOT use any external knowledge. If the answer is not in the context, say: "The document does not contain this information."
 
 Document Context:
 {context}
@@ -238,9 +236,8 @@ Question: {question}
 Please provide a comprehensive answer covering all relevant information:"""
     
     elif question_analysis["wants_links"]:
-        prompt = f"""You are analyzing a document to extract specific information including any links or URLs mentioned.
+        prompt = f"""You are analyzing a document to extract information including links or URLs mentioned. Answer strictly based on the context below. Do NOT use external knowledge. If no links are present, say so clearly.
 
-Please provide a detailed answer and make sure to include any links, URLs, or references found in the context.
 
 Document Context:
 {context}
@@ -250,9 +247,7 @@ Question: {question}
 Answer (include any links found):"""
     
     elif question_analysis["wants_details"]:
-        prompt = f"""You are analyzing a document to provide detailed explanations.
-
-Please provide a thorough, detailed answer with specific information, examples, and explanations based on the context.
+        prompt = f"""You are analyzing a document to provide a detailed explanation. Use **only** the information found in the context below. Do NOT use external knowledge or assumptions. If the information is missing, say so.
 
 Document Context:
 {context}
@@ -262,7 +257,8 @@ Question: {question}
 Detailed Answer:"""
     
     else:
-        prompt = f"""You are a helpful assistant. Use the following context to answer the question accurately and concisely.
+        prompt = f""""You are an assistant limited strictly to the provided document. Do NOT use any external knowledge. If the answer cannot be found in the context, respond with: 'The document does not contain this information.'"
+
 
 Context:
 {context}
