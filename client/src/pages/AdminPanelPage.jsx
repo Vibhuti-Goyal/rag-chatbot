@@ -78,6 +78,9 @@ const AdminPanelPage = ({ user, onLogout, onViewUser }) => {
     setIsLoading(true);
     try {
       // Simulated API call - replace with actual axios call
+      const response= await axios.post('http://127.0.0.1:5000/switch_document', {
+        index: currentIndex
+      });
       setMessage('✅ Document switched successfully');
       await fetchStatus();
     } catch (err) {
@@ -93,6 +96,7 @@ const AdminPanelPage = ({ user, onLogout, onViewUser }) => {
     setIsLoading(true);
     try {
       // Simulated API call - replace with actual axios call
+      const response= await axios.post('http://127.0.0.1:5000/clear_documents');
       setMessage('✅ All documents cleared');
       await fetchStatus();
     } catch (err) {
