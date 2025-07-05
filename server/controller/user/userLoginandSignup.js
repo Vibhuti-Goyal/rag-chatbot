@@ -22,7 +22,7 @@ const userLogin=async(req,res)=>{
         const tokenOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            sameSite: 'strict',
         };
 
         res.cookie('token', token, tokenOptions).json({
@@ -71,7 +71,24 @@ const userSignup = async (req, res) => {
   }
 };
 
+const fetchUser=async(req,res)=>{
+    const userId=req.user._id;
+    try{
+        const user=await userModel.findById(userId);
+        if(!user){
+            return res.status(400).json({error:"User not found"})
+        }
+        // console.log(user)
+        res.status(200).json({message:"User found",data:user})
+    }
+    catch(err){
+        console.log(err)
+        res.status(500).json({error:"Internal server error"})
+    }
+}
+
 module.exports={
     userLogin,
-    userSignup
+    userSignup,
+    fetchUser
 }

@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
 import styles from './styles/login.module.scss'; 
 import { SummaryApi } from '../../common';
+import { useSelector } from 'react-redux';
+import { useContext } from 'react';
+import { redirect } from 'react-router-dom';
+import Context from '../../context'; 
+import { useNavigate } from 'react-router-dom';
 
 const Auth = () => {
+  const { fetchUser } = useContext(Context);
+  const user = useSelector(state => state.user);
+  const navigate = useNavigate();
+  if(user && user.user && user.user._id) {
+    navigate('/dashboard')
+  }
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
@@ -106,18 +117,17 @@ const Auth = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Handle successful login/signup
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Redirect or update app state
-        console.log('Authentication successful:', data);
+        if (isLogin) {
+          await fetchUser(); 
+          navigate('/dashboard');
+        }
         
         // Reset form
         setFormData({
