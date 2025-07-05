@@ -19,6 +19,10 @@ const SummaryApi={
     UpdateUser:{
         url:`${Backend_URL}/api/updateUser`,
         method:"POST"
+    },
+    UploadUrls:{
+        url:`${Backend_URL}/api/uploadUrls`,
+        method:"POST"
     }
 }
 
