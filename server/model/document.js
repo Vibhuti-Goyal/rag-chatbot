@@ -22,7 +22,7 @@ const documentSchema = new mongoose.Schema({
   embeddingLocation: {
     type: {
       type: String, // 'chroma', 'pinecone', 'qdrant', etc.
-      required: true
+      // required: true
     },
     path: String,         // e.g., "vector_dbs/<doc_id>" for Chroma
     index: String,        // e.g., Pinecone index name

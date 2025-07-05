@@ -13,5 +13,6 @@ router.get("/fetchAllUser",authToken,User.fetchAllUser)
 router.post("/updateUser",authToken,User.updateUser)
 
 router.post("/uploadUrls",authToken,Document.uploadUrls)
+router.get("/fetchDocumentByRole",authToken,Document.fetchDocumentByRole)
 
 module.exports=router

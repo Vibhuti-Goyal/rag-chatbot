@@ -1,5 +1,7 @@
 const Document = require('../../model/document');
+const userModel = require('../../model/user');
 const axios = require('axios');
+const SummaryAPI = require('../../common');
 
 const uploadUrls = async (req, res) => {
   try {
@@ -43,26 +45,30 @@ const uploadUrls = async (req, res) => {
 
       // Step 2: Send to Flask for processing
       try {
-        const flaskResponse = await axios.post('http://localhost:5000/process_url', {
+        const flaskResponse = await axios.post(SummaryAPI.StoreVectorDB.url, {
           url,
           document_id: savedDoc._id,
           departments,
           file_type: fileType,
         });
 
-        const { success, embedding_location, status } = flaskResponse.data;
-
         // Step 3: Update MongoDB with status + embedding location
+        const { success, embedding_location, status, summary } = flaskResponse.data;
+
+        // Step 3: Update MongoDB with status + embedding location + summary
         if (success && embedding_location) {
           await Document.findByIdAndUpdate(savedDoc._id, {
             status: status || 'completed',
             embeddingLocation: embedding_location,
+            summary: summary || '',
           });
         } else {
           await Document.findByIdAndUpdate(savedDoc._id, {
             status: 'failed',
+            summary: summary || '',
           });
         }
+
 
       } catch (flaskError) {
         console.error(`Flask error for document ${savedDoc._id}:`, flaskError.message);
@@ -81,4 +87,30 @@ const uploadUrls = async (req, res) => {
   }
 };
 
-module.exports = { uploadUrls };
+
+
+const fetchDocumentByRole = async (req, res) => {
+  try {
+    // console.log('fetchDocumentByRole called');
+    const userId = req.user._id;
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    if(user.role==="admin"){
+        const documents = await Document.find();
+        return res.status(200).json({ message: "Documents found", documents });
+    }
+    const role = user.department;
+    const documents = await Document.find({ departments: role });
+
+    res.status(200).json({ message: "Documents found", documents });
+  } catch (err) {
+    console.error('fetchDocumentByRole error:', err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+module.exports = { uploadUrls, fetchDocumentByRole };

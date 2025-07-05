@@ -23,6 +23,10 @@ const SummaryApi={
     UploadUrls:{
         url:`${Backend_URL}/api/uploadUrls`,
         method:"POST"
+    },
+    FetchDocumentByRole:{
+        url:`${Backend_URL}/api/fetchDocumentByRole`,
+        method:"GET"
     }
 }
 
