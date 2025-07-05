@@ -1,0 +1,19 @@
+routes : '/process_url'
+
+imput : url,
+        document_id: savedDoc._id,
+        departments,
+        file_type: fileType,
+
+
+output : success, embedding_location, status
+
+embeddingLocation: {
+    type: {
+      type: String, // 'chroma', 'pinecone', 'qdrant', etc.
+      required: true
+    },
+    path: String,         // e.g., "vector_dbs/<doc_id>" for Chroma
+    index: String,        // e.g., Pinecone index name
+    namespace: String     // e.g., doc_id
+}
