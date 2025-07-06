@@ -7,6 +7,13 @@ from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
 
+@app.route('/')
+def index():
+    return jsonify({
+        'message': 'Welcome to the Flask VectorDB API'
+    })
+
+
 @app.route('/get-links', methods=['POST'])
 def get_links():
     url = request.get_json().get('url')
@@ -19,11 +26,8 @@ def get_links():
 
     return jsonify({'total_links': len(links), 'links': links})
 
-@app.route('/')
-def index():
-    return jsonify({
-        'message': 'Welcome to the Flask VectorDB API'
-    })
+
+
 @app.route('/create-vectordb', methods=['POST'])
 def create_vectordb():
     url = request.get_json().get('url')
