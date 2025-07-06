@@ -27,6 +27,15 @@ const SummaryApi={
     FetchDocumentByRole:{
         url:`${Backend_URL}/api/fetchDocumentByRole`,
         method:"GET"
+    },
+    
+    FetchChat:{
+        url:`${Backend_URL}/api/fetchChat`,
+        method:"GET"
+    },
+    QueryReply:{
+        url:`${Backend_URL}/api/queryReply`,
+        method:"POST"
     }
 }
 

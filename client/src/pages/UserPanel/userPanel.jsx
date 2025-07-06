@@ -56,7 +56,11 @@ const UserPanel = () => {
       <div className={styles.mainContent}>
         <ChatWindow selectedDocs={selectedDocs} />
       </div>
-      
+      {/* <ChatWindow
+        selectedDocs={selectedDocs}
+        className={styles.mainContent}
+      /> */}
+
       {/* Full-screen Document Modal */}
       {selectedDocument && (
         <DocumentModal
