@@ -1,55 +1,47 @@
 from flask import Flask, request, jsonify
-from utils.link_check import extract_links_from_any_url, extract_links_from_drive_folder
-from utils.vector_store import build_vectordb, extract_text
-from utils.summariser import summarize_with_groq
 from dotenv import load_dotenv
+from utils.link_check import extract_links_from_any_url
+from utils.vector_store import build_vectordb
+from utils.summariser import summarize_with_groq
+from utils.answer_generator import generate_answer
 
 load_dotenv()
 app = Flask(__name__)
 
-@app.route('/get-links', methods=['POST'])
-def get_links():
-    url = request.get_json().get('url')
-    if not url: return jsonify({'error': 'URL is required'}), 400
-
-    if "drive.google.com/drive/folders/" in url:
-        links = extract_links_from_drive_folder(url)
-    else:
-        links = extract_links_from_any_url(url)
-
-    return jsonify({'total_links': len(links), 'links': links})
-
 @app.route('/create-vectordb', methods=['POST'])
 def create_vectordb():
-    url = request.get_json().get('url')
-    if not url: return jsonify({'error': 'URL is required'}), 400
+    try:
+        url = request.json.get('url')
+        if not url:
+            return jsonify({'error': 'url is required'}), 400
 
-    # 🔍 Detect Drive folder vs normal page
-    if "drive.google.com/drive/folders/" in url:
-        links = extract_links_from_drive_folder(url)
-    else:
         links = extract_links_from_any_url(url)
+        db_path, full_text = build_vectordb(links)
+        
+        if not db_path:
+            return jsonify({'error': 'Vector DB creation failed'}), 500
 
-    if not links:
-        return jsonify({'error': 'No links found'}), 404
+        summary = summarize_with_groq(full_text[:6000]) if full_text.strip() else "No content"
 
-    # 🧠 Build vector DB from links
-    path = build_vectordb(url, links)
-    if not path:
-        return jsonify({'error': 'Failed to create vector DB'}), 500
+        return jsonify({
+            'success': True,
+            'total_links': len(links),
+            'embedding_location': {'type': 'chroma', 'path': db_path, 'namespace': 'auto'},
+            'status': 'completed',
+            'summary': summary
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-    # 🧾 Optionally generate summary (from the main URL file)
-    # Collect all file contents together
-    combined_text = ""
-    for link in links:
-        text = extract_text(link)
-        combined_text += text + "\n\n"
-
-    summary = summarize_with_groq(combined_text[:4000])
-
-    print("\n📄 SUMMARY:\n", summary)
-
-    return jsonify({'total_links': len(links), 'db_path': path, 'summary': summary})
+@app.route('/chat', methods=['POST'])
+def chat():
+    try:
+        data = request.get_json()
+        answer = generate_answer(data.get("query"), data.get("db_paths"), memory=None)
+        return jsonify({"answer": answer})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
