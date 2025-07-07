@@ -33,14 +33,15 @@ def create_vectordb():
     url = request.get_json().get('url')
     if not url: return jsonify({'error': 'URL is required'}), 400
 
-    # 🔍 Detect Drive folder vs normal page
-    if "drive.google.com/drive/folders/" in url:
-        links = extract_links_from_drive_folder(url)
-    else:
-        links = extract_links_from_any_url(url)
+    # # 🔍 Detect Drive folder vs normal page
+    # if "drive.google.com/drive/folders/" in url:
+    #     links = extract_links_from_drive_folder(url)
+    # else:
+    #     links = extract_links_from_any_url(url)
+    links=extract_links_from_any_url(url)
 
-    if not links:
-        return jsonify({'error': 'No links found'}), 404
+    # if not links:
+    #     return jsonify({'error': 'No links found'}), 404
 
     # 🧠 Build vector DB from links
     path = build_vectordb(url, links)
