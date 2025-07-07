@@ -4,6 +4,10 @@ const SummaryAPI={
     StoreVectorDB:{
         url:`${Flask_Backend}/create-vectordb`,
         method:"POST"
+    },
+    ChatReply:{
+        url:`${Flask_Backend}/chat`,
+        method:"POST"
     }
 }
 

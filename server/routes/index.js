@@ -21,5 +21,7 @@ router.get("/fetchDocumentByRole",authToken,Document.fetchDocumentByRole)
 // router.post("/createChat",authToken,Chat.createChat)
 router.get("/fetchChat",authToken,Chat.fetchChat)
 router.post("/queryReply",authToken,Chat.queryReply)
+router.get("/fetchChat/:id",authToken,Chat.fetchParticularChat)
+router.post("/createNewChat",authToken,Chat.createNewChat)
 
 module.exports=router

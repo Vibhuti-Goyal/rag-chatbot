@@ -36,6 +36,10 @@ const SummaryApi={
     QueryReply:{
         url:`${Backend_URL}/api/queryReply`,
         method:"POST"
+    },
+    NewChat:{
+        url:`${Backend_URL}/api/createNewChat`,
+        method:"POST"
     }
 }
 
