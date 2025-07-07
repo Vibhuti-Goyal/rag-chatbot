@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 .env
 
-flask_server/.env
+*.env
