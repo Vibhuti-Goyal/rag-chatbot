@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def generate_answer(query, db_paths, memory=None, history=""):
+def generate_answer(query, db_paths, memory=None, summary=None):
     emb = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     context = ""
 
@@ -19,18 +19,14 @@ def generate_answer(query, db_paths, memory=None, history=""):
         except Exception as e:
             print(f"❌ DB error in {path}: {e}")
 
+    if summary:
+        context = f"# User Summary:\n{summary.strip()}\n\n" + context
+
     if not context.strip():
         return "⚠️ No relevant content found."
 
-    if memory:
-        chat = memory.load_memory_variables({}).get("chat_history", [])
-        for m in chat:
-            who = "User" if m.type == "human" else "AI"
-            history += f"{who}: {m.content.strip()}\n"
-
-    prompt = f"""{history.strip()}
-
-You are a smart and structured assistant. You are given helpful **context** extracted from documents using vector search.
+    prompt = f"""
+You are a smart and structured assistant. You are given helpful **context** extracted from documents and an optional summary provided by the user.
 
 Your job is to **ONLY** use the provided context to answer the user's question. 
 If the context does **not contain** enough information, say:
@@ -43,8 +39,8 @@ If the context does **not contain** enough information, say:
 - Do NOT use outside knowledge or make assumptions.
 - DO NOT answer if context is missing or unrelated.
 
-### Context:
-{context}
+### Context (from user summary and vector DB):
+{context.strip()}
 
 ### User Question:
 {query}
